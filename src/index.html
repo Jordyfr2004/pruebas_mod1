@@ -85,11 +85,10 @@
   </div>
 
   <script>
-    const API_URL = 'http://localhost:3000/usuarios';
+    let usuarios = [];
+    let contadorId = 1;
 
-    async function cargarUsuarios() {
-      const res = await fetch(API_URL);
-      const usuarios = await res.json();
+    function cargarUsuarios() {
       const contenedor = document.getElementById('usuariosContainer');
       contenedor.innerHTML = '';
 
@@ -110,35 +109,32 @@
       });
     }
 
-    async function crearUsuario() {
-      const nombre = document.getElementById('nombre').value;
-      const correo = document.getElementById('correo').value;
+    function crearUsuario() {
+      const nombre = document.getElementById('nombre').value.trim();
+      const correo = document.getElementById('correo').value.trim();
 
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, correo })
-      });
-
-      if (res.ok) {
-        document.getElementById('mensaje').textContent = 'Usuario creado correctamente';
-        setTimeout(() => document.getElementById('mensaje').textContent = '', 3000);
+      if (!nombre || !correo) {
+        alert('Nombre y correo son obligatorios');
+        return;
       }
+
+      usuarios.push({ id: contadorId++, nombre, correo });
 
       document.getElementById('nombre').value = '';
       document.getElementById('correo').value = '';
+
+      document.getElementById('mensaje').textContent = 'Usuario creado correctamente';
+      setTimeout(() => document.getElementById('mensaje').textContent = '', 3000);
+
+      cargarUsuarios();
     }
 
-    async function eliminarUsuario(id) {
-      const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-      if (res.status === 204 || res.status === 200) {
-        cargarUsuarios();
-      } else {
-        alert('Error al eliminar usuario');
-      }
+    function eliminarUsuario(id) {
+      usuarios = usuarios.filter(usuario => usuario.id !== id);
+      cargarUsuarios();
     }
 
-    async function toggleEdicion(id) {
+    function toggleEdicion(id) {
       const inputNombre = document.getElementById(`nombre-${id}`);
       const inputCorreo = document.getElementById(`correo-${id}`);
       const boton = document.getElementById(`editar-${id}`);
@@ -147,18 +143,13 @@
 
       if (estaEditando) {
         // GUARDAR
-        const nombre = inputNombre.value;
-        const correo = inputCorreo.value;
+        const nuevoNombre = inputNombre.value.trim();
+        const nuevoCorreo = inputCorreo.value.trim();
 
-        const res = await fetch(`${API_URL}/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre, correo })
-        });
-
-        if (!res.ok) {
-          alert('Error al actualizar');
-          return;
+        const usuario = usuarios.find(u => u.id === id);
+        if (usuario) {
+          usuario.nombre = nuevoNombre;
+          usuario.correo = nuevoCorreo;
         }
 
         inputNombre.disabled = true;
@@ -171,12 +162,7 @@
         boton.textContent = 'Guardar';
       }
     }
-
-    // Nota: Ya no se llama cargarUsuarios() automáticamente
   </script>
 
 </body>
 </html>
-
-
-
