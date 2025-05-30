@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 
 // Ruta para servir el archivo HTML
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'interfaz.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Aquí puedes agregar tus rutas API, middlewares, etc.
